@@ -4,6 +4,11 @@ metadata:
   name: stratego
 spec:
   replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
   selector:
     matchLabels: {app: stratego}
   template:
@@ -13,6 +18,13 @@ spec:
         prometheus.io/scrape: 'true'
         prometheus.io/port: '5000'
     spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          nodeTaintsPolicy: Honor
+          labelSelector:
+            matchLabels: {app: stratego}
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -37,7 +49,8 @@ spec:
           readinessProbe:
             httpGet: {path: /healthz, port: 5000}
           livenessProbe:
-            httpGet: {path: /healthz, port: 5000}
+            exec:
+              command: [sh, -c, "kill -0 1"]
 ---
 apiVersion: v1
 kind: Service

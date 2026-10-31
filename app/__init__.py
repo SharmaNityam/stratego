@@ -26,7 +26,7 @@ def create_app(config=None):
         if postgres:
             import psycopg
             from psycopg.rows import dict_row
-            connection = psycopg.connect(app.config['DATABASE_URL'], row_factory=dict_row)
+            connection = psycopg.connect(app.config['DATABASE_URL'], row_factory=dict_row, connect_timeout=3)
         else:
             connection = sqlite3.connect(app.config['DATABASE'], timeout=10)
             connection.row_factory = sqlite3.Row
@@ -118,6 +118,10 @@ def create_app(config=None):
             if not cursor.rowcount:
                 abort(404)
         return redirect(url_for('index'))
+
+    @app.get('/livez')
+    def live():
+        return {'status': 'ok'}
 
     @app.get('/healthz')
     def health():

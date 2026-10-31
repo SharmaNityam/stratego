@@ -1,0 +1,20 @@
+# A new cluster used by the main app after the offline migration.
+# Requires CloudNativePG 1.30+ and a suitable storage class.
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: stratego-postgres-main-ha
+spec:
+  instances: 3
+  bootstrap:
+    initdb:
+      database: stratego
+      owner: stratego
+  postgresql:
+    synchronous:
+      method: any
+      number: 1
+      dataDurability: required
+      failoverQuorum: true
+  storage:
+    size: 2Gi

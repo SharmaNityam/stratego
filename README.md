@@ -44,7 +44,7 @@ kubectl create secret generic stratego-db \
 unset STRATEGO_DB_PASSWORD
 kubectl apply -f k8s/postgres.yaml
 kubectl rollout status deployment/postgres --timeout=180s
-kubectl apply -f k8s/app.yaml
+kubectl apply -f k8s/base/app.yaml
 kubectl apply -f monitoring/
 kubectl rollout status deployment/stratego --timeout=180s
 kubectl get pods -o wide
@@ -69,13 +69,13 @@ kubectl rollout status deployment/stratego
 kubectl get pods -l app=stratego -o wide
 ```
 
-Replace `POD_NAME` with one pod name from the first command. The deployment creates a replacement; confirm tasks remain visible after replacement. Anti-affinity prefers separate nodes but does not guarantee placement. Local kind storage is node-bound and is not a substitute for a replicated database or storage system. `kind delete cluster --name stratego` deletes the cluster and its local data.
+Replace `POD_NAME` with one pod name from the first command. The deployment creates a replacement; confirm tasks remain visible after replacement. Topology-spread constraints distribute replicas across eligible worker nodes; availability still depends on node capacity and scheduling. Local kind storage is node-bound and is not a substitute for a replicated database or storage system. `kind delete cluster --name stratego` deletes the cluster and its local data.
 
-An [optional replicated PostgreSQL configuration](docs/high-availability.md) is provided as a failover experiment. A primary-pod failover was verified on the local cluster. It creates a separate empty database.
+The [high-availability guide](docs/high-availability.md) describes migrating the main app to a new replicated PostgreSQL cluster while preserving tasks. The migration and a primary-pod failover were verified locally. The base manifest still points to the standalone database; after migration, use the HA overlay as described in the guide.
 
 See [local verification](docs/local-verification.md) for the checks performed and their limits.
 
-For full-stack high availability, use multiple independent nodes and failure domains, a replicated managed PostgreSQL service or tested failover cluster, durable shared monitoring storage, appropriate load balancing, backups and recovery tests. These are not provided or verified by this local demo.
+For full-stack high availability, use multiple independent nodes and failure domains, a replicated managed PostgreSQL service or tested failover cluster, durable shared monitoring storage, appropriate load balancing, backups and recovery tests. Independent physical failure domains and durable off-host backups are not provided or verified by this local demo.
 
 ## AWS later
 

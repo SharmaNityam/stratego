@@ -28,6 +28,7 @@ def test_validation_and_missing_tasks(client):
 
 
 def test_health_and_metrics(client):
+    assert client.get('/livez').json == {'status': 'ok'}
     assert client.get('/healthz').json == {'status': 'ok'}
     assert b'stratego_http_requests_total' in client.get('/metrics').data
 
@@ -94,3 +95,15 @@ def test_postgres_integration_when_available():
     assert client.get('/healthz').status_code == 200
     assert client.post('/tasks', data={'title': 'PostgreSQL integration', 'priority': 'high'}).status_code == 302
     assert b'PostgreSQL integration' in client.get('/').data
+
+
+def test_liveness_does_not_depend_on_database(client, monkeypatch):
+    import sqlite3
+
+    def unavailable(*args, **kwargs):
+        raise sqlite3.OperationalError('database unavailable')
+
+    monkeypatch.setattr(sqlite3, 'connect', unavailable)
+    assert client.get('/livez').status_code == 200
+    with pytest.raises(sqlite3.OperationalError):
+        client.get('/healthz')
