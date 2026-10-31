@@ -26,7 +26,7 @@
     - name: Install k3s
       ansible.builtin.command: /tmp/k3s-install.sh
       environment:
-        INSTALL_K3S_VERSION: v1.30.14+k3s1
+        INSTALL_K3S_VERSION: v1.36.5+k3s1
         INSTALL_K3S_EXEC: server --disable traefik
       when: not k3s_binary.stat.exists
     - name: Enable k3s
