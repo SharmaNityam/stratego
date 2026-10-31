@@ -1,1 +1,75 @@
-:root{font-family:Inter,system-ui,sans-serif;color:#202f2b;background:#f4f6f2}*{box-sizing:border-box}body{margin:0}main{max-width:1120px;margin:auto;padding:60px 24px}header,.section-heading,.task-footer{display:flex;justify-content:space-between;align-items:center;gap:20px}header{margin-bottom:44px}h1{font-size:clamp(2rem,5vw,3.5rem);letter-spacing:-.05em;margin:.2em 0}h2{letter-spacing:-.03em;margin:0 0 20px}.eyebrow{font-size:.7rem;letter-spacing:.16em;font-weight:800;color:#43806b}.badge{font-size:.7rem;color:#386b58;background:#e1eee5;padding:10px 14px;border-radius:25px;font-weight:700}.card{background:white;border:1px solid #e1e9e2;border-radius:18px;padding:24px;box-shadow:0 8px 30px #203b2408}.create,.edit{display:grid;grid-template-columns:2fr 2fr 1.1fr 1fr auto;gap:12px;align-items:end}.edit{grid-template-columns:1.5fr 1.5fr 1fr 1fr 1fr auto}label{font-size:.75rem;font-weight:700;color:#64756b;display:grid;gap:8px}input,select{min-width:0;width:100%;border:1px solid #d9e2db;border-radius:9px;padding:12px;font:inherit;color:#263b30;background:white}button{border:0;border-radius:9px;padding:13px 18px;background:#27684f;color:white;font-weight:700;cursor:pointer}.secondary{background:#e8f1eb;color:#27684f}.delete{background:none;color:#a45e56;padding:4px}.tasks{margin-top:50px}.section-heading h2{margin-bottom:0}nav{display:flex;gap:4px;flex-wrap:wrap}nav a{text-decoration:none;color:#78877c;font-size:.85rem;padding:9px 12px;border-radius:8px}nav a.active{background:#dfece2;color:#27684f;font-weight:700}.task{margin-top:15px}.task-footer{margin-top:16px;color:#75877c;font-size:.8rem}.empty{margin-top:20px;padding:45px;text-align:center;color:#75877c;background:#fff;border:1px dashed #d4e0d6;border-radius:18px}@media(max-width:750px){header,.section-heading{align-items:flex-start;flex-direction:column}.create,.edit{grid-template-columns:1fr}.badge{display:none}main{padding-top:35px}}
+:root {
+  color: #202f2b;
+  background: #f4f6f2;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { max-width: 1120px; margin: 0 auto; padding: 60px 24px 80px; }
+header, .section-heading, .task-footer { display: flex; justify-content: space-between; gap: 20px; }
+header { align-items: center; margin-bottom: 44px; }
+header > div, .section-heading > div { min-width: 0; }
+header > div > p:last-child { margin: 12px 0 0; color: #61736a; line-height: 1.5; }
+h1 { margin: 8px 0 0; font-size: clamp(2rem, 5vw, 3.5rem); line-height: 1.08; letter-spacing: -.05em; }
+h2 { margin: 0 0 20px; font-size: 1.5rem; line-height: 1.2; letter-spacing: -.03em; }
+.eyebrow { margin: 0; color: #43806b; font-size: .7rem; line-height: 1.3; letter-spacing: .16em; font-weight: 800; }
+.badge { flex: none; padding: 10px 14px; border-radius: 25px; background: #e1eee5; color: #386b58; font-size: .7rem; font-weight: 700; }
+.card { padding: 24px; border: 1px solid #e1e9e2; border-radius: 18px; background: #fff; box-shadow: 0 8px 30px #203b2408; }
+.create, .edit { display: grid; align-items: end; gap: 12px; }
+.create { grid-template-columns: minmax(0, 2fr) minmax(0, 2fr) minmax(145px, 1.1fr) minmax(150px, 1fr) auto; }
+.edit { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.5fr) minmax(140px, 1fr) minmax(140px, 1fr) minmax(130px, 1fr) auto; }
+label { display: grid; min-width: 0; gap: 8px; color: #64756b; font-size: .75rem; line-height: 1.2; font-weight: 700; }
+input, select, button { font-family: inherit; }
+input, select {
+  display: block; width: 100%; min-width: 0; height: 44px; padding: 0 12px;
+  border: 1px solid #d9e2db; border-radius: 9px; background-color: #fff;
+  color: #263b30; font-size: .875rem; font-weight: 400; line-height: normal;
+}
+input::placeholder { color: #89978e; opacity: 1; }
+select {
+  appearance: none; padding-right: 36px; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23586c60' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center; background-size: 16px;
+}
+input:focus-visible, select:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid #8dc3a5; outline-offset: 2px; }
+button { min-height: 44px; padding: 0 18px; border: 0; border-radius: 9px; background: #27684f; color: #fff; font-size: .875rem; font-weight: 700; white-space: nowrap; cursor: pointer; }
+button:hover { background: #1f5841; }
+.secondary { background: #e8f1eb; color: #27684f; }
+.secondary:hover { background: #d9e9de; }
+.delete { min-height: 0; padding: 4px; background: transparent; color: #a45e56; font-size: .8rem; }
+.delete:hover { background: transparent; color: #813f38; }
+.tasks { margin-top: 50px; }
+.section-heading { align-items: end; }
+.section-heading h2 { margin: 7px 0 0; }
+.section-heading > form { flex: 0 0 145px; }
+nav { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+nav a { padding: 9px 12px; border-radius: 8px; color: #667970; font-size: .85rem; line-height: 1.4; text-decoration: none; white-space: nowrap; }
+nav a:hover { background: #eaf1eb; }
+nav a.active { background: #dfece2; color: #27684f; font-weight: 700; }
+.task { margin-top: 15px; }
+.task-footer { align-items: center; margin-top: 16px; color: #75877c; font-size: .8rem; }
+.empty { margin-top: 20px; padding: 45px 24px; border: 1px dashed #d4e0d6; border-radius: 18px; background: #fff; color: #75877c; text-align: center; line-height: 1.5; }
+@media (max-width: 1000px) {
+  .create { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .edit { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .create button, .edit button { width: 100%; }
+}
+@media (max-width: 700px) {
+  main { padding: 36px 20px 60px; }
+  header { align-items: flex-start; margin-bottom: 32px; }
+  .badge { display: none; }
+  .section-heading { align-items: flex-start; flex-wrap: wrap; }
+  .section-heading > div { flex: 1 0 100%; }
+  .section-heading > form { flex: 0 0 145px; margin-left: auto; }
+  .create, .edit { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tasks { margin-top: 40px; }
+}
+@media (max-width: 480px) {
+  .card { padding: 20px; }
+  .create, .edit { grid-template-columns: minmax(0, 1fr); }
+  .section-heading > form { flex: 1 0 100%; margin-left: 0; }
+  nav { width: 100%; }
+  nav a { padding: 8px 10px; }
+}
