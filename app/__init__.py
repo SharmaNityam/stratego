@@ -44,13 +44,13 @@ def create_app(config=None):
         if status not in ('all', 'todo', 'doing', 'done'):
             abort(400)
         with db() as connection:
-            tasks = connection.execute('SELECT * FROM tasks' + (' WHERE status = ?' if status != 'all' else '') + ' ORDER BY due_date IS NULL, due_date, id DESC', (status,) if status != 'all' else ()).fetchall()
+            tasks = connection.execute('SELECT * FROM tasks' + (' WHERE status = ?' if status != 'all' else " WHERE status != 'done'") + ' ORDER BY due_date IS NULL, due_date, id DESC', (status,) if status != 'all' else ()).fetchall()
         today = date.today()
         def reminder(task):
             if not task['due_date'] or task['status'] == 'done':
                 return ''
             days = (date.fromisoformat(task['due_date']) - today).days
-            return 'Overdue' if days < 0 else 'Due soon' if days <= 3 else 'Upcoming'
+            return 'Overdue' if days < 0 else 'Due today' if days == 0 else 'Due soon' if days <= 3 else 'Upcoming'
         return render_template('index.html', tasks=tasks, status=status, reminder=reminder)
 
     @app.post('/tasks')
