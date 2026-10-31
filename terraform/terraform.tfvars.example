@@ -1,0 +1,2 @@
+key_name   = "your-existing-key-pair"
+admin_cidr = "203.0.113.10/32"

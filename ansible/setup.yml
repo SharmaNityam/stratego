@@ -1,0 +1,36 @@
+---
+- name: Prepare a single-node Stratego server
+  hosts: stratego
+  become: true
+  tasks:
+    - name: Install Docker and prerequisites
+      ansible.builtin.apt:
+        name: [docker.io, curl, ca-certificates]
+        state: present
+        update_cache: true
+    - name: Enable Docker
+      ansible.builtin.service:
+        name: docker
+        enabled: true
+        state: started
+    - name: Check for k3s
+      ansible.builtin.stat:
+        path: /usr/local/bin/k3s
+      register: k3s_binary
+    - name: Download k3s installer
+      ansible.builtin.get_url:
+        url: https://get.k3s.io
+        dest: /tmp/k3s-install.sh
+        mode: '0755'
+      when: not k3s_binary.stat.exists
+    - name: Install k3s
+      ansible.builtin.command: /tmp/k3s-install.sh
+      environment:
+        INSTALL_K3S_VERSION: v1.30.14+k3s1
+        INSTALL_K3S_EXEC: server --disable traefik
+      when: not k3s_binary.stat.exists
+    - name: Enable k3s
+      ansible.builtin.service:
+        name: k3s
+        enabled: true
+        state: started
