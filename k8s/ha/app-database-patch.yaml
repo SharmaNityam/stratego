@@ -1,0 +1,11 @@
+spec:
+  template:
+    spec:
+      containers:
+        - name: stratego
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: stratego-postgres-ha-app
+                  key: uri

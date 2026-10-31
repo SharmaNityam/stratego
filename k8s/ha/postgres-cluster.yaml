@@ -1,0 +1,14 @@
+# Requires the CloudNativePG operator and a suitable dynamic storage class.
+# This creates a NEW, empty database; it does not import the standalone database.
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: stratego-postgres-ha
+spec:
+  instances: 3
+  bootstrap:
+    initdb:
+      database: stratego
+      owner: stratego
+  storage:
+    size: 2Gi
