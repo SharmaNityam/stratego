@@ -35,3 +35,7 @@ The revised primary-worker failure test was repeated after moving the primary to
 ## Monitoring dashboard extension
 
 Prometheus discovered three node-exporter pods (one on each local kind node). Node CPU and memory queries each returned three series, and Grafana loaded the seven-panel dashboard. Kind nodes share a Docker VM kernel, so these readings are not independent physical-host metrics.
+
+## Browser and image publishing
+
+A browser walkthrough created a task, marked it done, filtered it, and deleted it using a separate local database. Desktop and mobile create/edit form alignment was checked at viewport widths 320, 375, 480, 700, 900, 1100 and 1440 pixels with no document overflow or controls extending outside their forms. The main GitHub Actions workflow passed tests and published commit `c68d1dd3c8a372f13e53ae3d0f14a4ef0315ece8` to the public Docker Hub repository for linux/amd64 and linux/arm64. The deploy job remains disabled until a target runner and cluster are configured.
