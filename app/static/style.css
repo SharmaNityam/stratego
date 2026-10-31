@@ -22,7 +22,7 @@ h2 { margin: 0 0 20px; font-size: 1.5rem; line-height: 1.2; letter-spacing: -.03
 .edit { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.5fr) minmax(140px, 1fr) minmax(140px, 1fr) minmax(130px, 1fr) auto; }
 label { display: grid; min-width: 0; gap: 8px; color: #64756b; font-size: .75rem; line-height: 1.2; font-weight: 700; }
 input, select, button { font-family: inherit; }
-input, select {
+input:not([type="hidden"]), select {
   display: block; width: 100%; min-width: 0; height: 44px; padding: 0 12px;
   border: 1px solid #d9e2db; border-radius: 9px; background-color: #fff;
   color: #263b30; font-size: .875rem; font-weight: 400; line-height: normal;
@@ -55,6 +55,7 @@ nav a.active { background: #dfece2; color: #27684f; font-weight: 700; }
   .create { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .edit { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .create button, .edit button { width: 100%; }
+  .create button { grid-column: 1 / -1; }
 }
 @media (max-width: 700px) {
   main { padding: 36px 20px 60px; }

@@ -107,3 +107,12 @@ def test_liveness_does_not_depend_on_database(client, monkeypatch):
     assert client.get('/livez').status_code == 200
     with pytest.raises(sqlite3.OperationalError):
         client.get('/healthz')
+
+
+def test_mutations_preserve_filter_and_sort(client):
+    response = client.post('/tasks', data={'title': 'Task', 'priority': 'high', '_filter': 'doing', '_sort': 'newest'})
+    assert response.location.endswith('/?status=all&sort=newest')
+    response = client.post('/tasks/1/edit', data={'title': 'Updated', 'priority': 'low', 'status': 'done', '_filter': 'done', '_sort': 'newest'})
+    assert response.location.endswith('/?status=done&sort=newest')
+    response = client.post('/tasks/1/delete', data={'_filter': 'done', '_sort': 'newest'})
+    assert response.location.endswith('/?status=done&sort=newest')

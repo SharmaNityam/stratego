@@ -96,11 +96,22 @@ def create_app(config=None):
                 abort(400)
         return title, description, due, status, priority
 
+    def return_to_tasks(show_new_task=False):
+        selected_filter = request.form.get('_filter', 'all')
+        if show_new_task and selected_filter in ('doing', 'done'):
+            selected_filter = 'all'
+        sorting = request.form.get('_sort', 'urgency')
+        if selected_filter not in ('all', 'todo', 'doing', 'done'):
+            selected_filter = 'all'
+        if sorting not in ('urgency', 'newest'):
+            sorting = 'urgency'
+        return redirect(url_for('index', status=selected_filter, sort=sorting))
+
     @app.post('/tasks')
     def create_task():
         with db() as connection:
             execute(connection, 'INSERT INTO tasks(title, description, due_date, status, priority) VALUES(?,?,?,?,?)', validate())
-        return redirect(url_for('index'))
+        return return_to_tasks(show_new_task=True)
 
     @app.post('/tasks/<int:task_id>/edit')
     def edit_task(task_id):
@@ -109,7 +120,7 @@ def create_app(config=None):
             cursor = execute(connection, 'UPDATE tasks SET title=?, description=?, due_date=?, status=?, priority=? WHERE id=?', (*values, task_id))
             if not cursor.rowcount:
                 abort(404)
-        return redirect(url_for('index'))
+        return return_to_tasks()
 
     @app.post('/tasks/<int:task_id>/delete')
     def delete_task(task_id):
@@ -117,7 +128,7 @@ def create_app(config=None):
             cursor = execute(connection, 'DELETE FROM tasks WHERE id=?', (task_id,))
             if not cursor.rowcount:
                 abort(404)
-        return redirect(url_for('index'))
+        return return_to_tasks()
 
     @app.get('/livez')
     def live():

@@ -39,3 +39,7 @@ Prometheus discovered three node-exporter pods (one on each local kind node). No
 ## Browser and image publishing
 
 A browser walkthrough created a task, marked it done, filtered it, and deleted it using a separate local database. Desktop and mobile create/edit form alignment was checked at viewport widths 320, 375, 480, 700, 900, 1100 and 1440 pixels with no document overflow or controls extending outside their forms. The main GitHub Actions workflow passed tests and published commit `c68d1dd3c8a372f13e53ae3d0f14a4ef0315ece8` to the public Docker Hub repository for linux/amd64 and linux/arm64. The deploy job remains disabled until a target runner and cluster are configured.
+
+## UI interaction sweep
+
+On 31 October 2026, a browser walkthrough exercised creation with required fields and each priority, title/details/status/priority edits, all status filters, urgency/newest sorting, and both cancel and confirmation of deletion. Mobile and desktop views were inspected, and a temporary task was created, edited, filtered, and deleted against the live local Kubernetes app. Filter and sort selections now remain after edits and deletions; creating from Done or In progress opens Active so the new task is visible. A browser layout sweep checked 331 widths from 280 to 1600 pixels for horizontal overflow and overlapping form, navigation, and header controls. This covers the tested browser and widths rather than every browser, font, device, or setting.
