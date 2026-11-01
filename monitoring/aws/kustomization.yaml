@@ -4,7 +4,9 @@ resources:
   - ../grafana.yaml
   - ../prometheus.yaml
   - ../node-exporter.yaml
+  - alertmanager.yaml
 patches:
+  - path: prometheus-alertmanager-patch.yaml
   - target:
       kind: Deployment
       name: grafana

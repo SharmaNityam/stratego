@@ -84,8 +84,10 @@ resource "aws_instance" "nodes" {
   instance_type               = var.instance_type
   subnet_id                   = sort(data.aws_subnets.default.ids)[count.index]
   associate_public_ip_address = true
-  key_name                    = aws_key_pair.stratego.key_name
-  vpc_security_group_ids      = [aws_security_group.nodes.id]
+  # The separate aws-alerts stack creates this narrowly scoped SNS publisher.
+  iam_instance_profile   = count.index == 0 ? "stratego-alert-publisher" : null
+  key_name               = aws_key_pair.stratego.key_name
+  vpc_security_group_ids = [aws_security_group.nodes.id]
   root_block_device {
     volume_size = 20
     volume_type = "gp3"

@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: stratego-alertmanager-config
+data:
+  alertmanager.yml: |
+    global:
+      resolve_timeout: 5m
+    route:
+      receiver: email-via-sns
+      group_by: ['alertname']
+      group_wait: 10s
+      group_interval: 5m
+      repeat_interval: 4h
+    receivers:
+      - name: email-via-sns
+        sns_configs:
+          - topic_arn: arn:aws:sns:ap-southeast-2:428819150477:stratego-alerts
+            sigv4:
+              region: ap-southeast-2
+            subject: '[Stratego] {{ .Status | toUpper }}: {{ .CommonLabels.alertname }}'
+            send_resolved: true
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stratego-alertmanager
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector:
+    matchLabels: {app: stratego-alertmanager}
+  template:
+    metadata:
+      labels: {app: stratego-alertmanager}
+    spec:
+      # The instance role is limited to publishing to this one SNS topic.
+      # Host networking enables IMDSv2 without increasing the metadata hop limit.
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      nodeSelector:
+        kubernetes.io/hostname: ip-172-31-46-242
+      containers:
+        - name: alertmanager
+          image: prom/alertmanager:v0.28.1
+          args: ['--config.file=/etc/alertmanager/alertmanager.yml', '--storage.path=/alertmanager']
+          ports: [{name: http, containerPort: 9093}]
+          readinessProbe:
+            httpGet: {path: /-/ready, port: 9093}
+          resources:
+            requests: {cpu: 30m, memory: 48Mi}
+            limits: {cpu: 250m, memory: 128Mi}
+          volumeMounts:
+            - {name: config, mountPath: /etc/alertmanager}
+      volumes:
+        - name: config
+          configMap: {name: stratego-alertmanager-config}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: stratego-alertmanager
+spec:
+  selector: {app: stratego-alertmanager}
+  ports: [{port: 9093, targetPort: 9093}]
