@@ -22,8 +22,10 @@ data "aws_ami" "ubuntu" {
   most_recent = true
   owners      = ["099720109477"]
   filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+    name = "name"
+    # Pin the image used for this cluster: replacing a database node also
+    # replaces its root volume. Upgrade nodes through an explicit migration.
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-20261021"]
   }
 }
 resource "aws_key_pair" "stratego" {
@@ -47,8 +49,8 @@ resource "aws_security_group" "nodes" {
     self      = true
   }
   ingress {
-    from_port       = 30080
-    to_port         = 30080
+    from_port       = 30081
+    to_port         = 30081
     protocol        = "tcp"
     security_groups = [aws_security_group.load_balancer.id]
   }
@@ -90,6 +92,12 @@ resource "aws_instance" "nodes" {
     encrypted   = true
   }
   metadata_options { http_tokens = "required" }
+  lifecycle {
+    prevent_destroy = true
+    # EC2 releases its public IP while stopped. The provider can otherwise
+    # interpret that temporary state as a request to replace the instance.
+    ignore_changes = [associate_public_ip_address]
+  }
   tags = { Name = "stratego-ha-${count.index + 1}", Project = "stratego" }
 }
 resource "aws_lb" "stratego" {
@@ -101,20 +109,20 @@ resource "aws_lb" "stratego" {
 }
 resource "aws_lb_target_group" "stratego" {
   name_prefix = "strat-"
-  port        = 30080
+  port        = 30081
   protocol    = "TCP"
   vpc_id      = data.aws_vpc.default.id
   health_check {
     protocol = "HTTP"
     path     = "/healthz"
-    port     = "30080"
+    port     = "30081"
   }
 }
 resource "aws_lb_target_group_attachment" "nodes" {
   count            = 3
   target_group_arn = aws_lb_target_group.stratego.arn
   target_id        = aws_instance.nodes[count.index].id
-  port             = 30080
+  port             = 30081
 }
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.stratego.arn

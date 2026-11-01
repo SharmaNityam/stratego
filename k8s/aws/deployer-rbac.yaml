@@ -13,7 +13,19 @@ rules:
   - apiGroups: [apps]
     resources: [deployments]
     resourceNames: [stratego]
-    verbs: [get, watch, patch]
+    verbs: [get, list, watch, patch]
+  - apiGroups: ['']
+    resources: [services]
+    resourceNames: [stratego]
+    verbs: [get, patch]
+  - apiGroups: [autoscaling]
+    resources: [horizontalpodautoscalers]
+    resourceNames: [stratego]
+    verbs: [get, patch]
+  - apiGroups: [networking.k8s.io]
+    resources: [ingresses]
+    resourceNames: [stratego]
+    verbs: [get, patch]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding

@@ -1,4 +1,44 @@
 ---
+- name: Install container and deployment tools on all cluster servers
+  hosts: all
+  become: true
+  tasks:
+    - name: Wait for cloud-init
+      ansible.builtin.command: cloud-init status --wait
+      changed_when: false
+    - name: Install Docker and prerequisites
+      ansible.builtin.apt:
+        name: [docker.io, ca-certificates, curl]
+        state: present
+        update_cache: true
+    - name: Start Docker
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true
+    - name: Download the pinned Helm release
+      ansible.builtin.get_url:
+        url: https://get.helm.sh/helm-v3.19.0-linux-amd64.tar.gz
+        checksum: sha256:https://get.helm.sh/helm-v3.19.0-linux-amd64.tar.gz.sha256sum
+        dest: /tmp/stratego-helm-v3.19.0.tar.gz
+        mode: '0644'
+    - name: Check the installed Helm version
+      ansible.builtin.command: /usr/local/bin/helm version --short
+      register: installed_helm
+      changed_when: false
+      failed_when: false
+    - name: Install Helm
+      ansible.builtin.command:
+        argv:
+          - tar
+          - -xzf
+          - /tmp/stratego-helm-v3.19.0.tar.gz
+          - --strip-components=1
+          - -C
+          - /usr/local/bin
+          - linux-amd64/helm
+      when: installed_helm.rc != 0 or not installed_helm.stdout.startswith('v3.19.0')
+
 - name: Bootstrap the first highly available k3s server
   hosts: first
   become: true
@@ -54,3 +94,44 @@
         K3S_TOKEN: "{{ lookup('env', 'STRATEGO_K3S_TOKEN') }}"
         INSTALL_K3S_EXEC: "server --server https://{{ hostvars[groups['first'][0]].private_ip }}:6443 --disable traefik --disable servicelb --node-ip {{ private_ip }}"
       no_log: true
+
+- name: Install the NGINX ingress controller
+  hosts: first
+  become: true
+  tasks:
+    - name: Download the pinned NGINX custom resource definitions
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/nginx/kubernetes-ingress/v5.6.3/deploy/crds.yaml
+        dest: /tmp/stratego-nginx-crds-v5.6.3.yaml
+        mode: '0644'
+    - name: Apply the NGINX custom resource definitions
+      ansible.builtin.command: k3s kubectl apply --server-side -f /tmp/stratego-nginx-crds-v5.6.3.yaml
+      register: nginx_crds
+      changed_when: "'serverside-applied' in nginx_crds.stdout"
+    - name: Copy the NGINX Helm values
+      ansible.builtin.copy:
+        src: ../k8s/aws/nginx-values.yaml
+        dest: /tmp/stratego-nginx-values.yaml
+        mode: '0644'
+    - name: Install or upgrade NGINX ingress
+      ansible.builtin.command:
+        argv:
+          - helm
+          - upgrade
+          - --install
+          - stratego-ingress
+          - oci://ghcr.io/nginx/charts/nginx-ingress
+          - --version
+          - 2.7.3
+          - --namespace
+          - stratego-nginx
+          - --create-namespace
+          - --skip-crds
+          - --values
+          - /tmp/stratego-nginx-values.yaml
+          - --wait
+          - --timeout
+          - 4m
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+      changed_when: true

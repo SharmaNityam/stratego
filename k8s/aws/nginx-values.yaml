@@ -1,0 +1,20 @@
+controller:
+  replicaCount: 2
+  enableCustomResources: true
+  allowEmptyIngressHost: true
+  service:
+    type: NodePort
+    externalTrafficPolicy: Cluster
+    httpPort:
+      nodePort: 30081
+    httpsPort:
+      enable: false
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/name: nginx-ingress
+            topologyKey: kubernetes.io/hostname
